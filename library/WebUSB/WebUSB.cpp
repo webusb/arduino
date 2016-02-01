@@ -20,30 +20,55 @@
 
 WebUSB WebSerial;
 
-const uint8_t BOS_DESCRIPTOR[30] PROGMEM = {
-// BOS descriptor header.
-0x05, 0x0F, 0x1D, 0x00, 0x01,
+const uint8_t BOS_DESCRIPTOR[57] PROGMEM = {
+0x05,  // Length
+0x0F,  // Binary Object Store descriptor
+0x39, 0x00,  // Total length
+0x02,  // Number of device capabilities
 
 // WebUSB Platform Capability descriptor (bVendorCode == 0x01).
-0x18, 0x10, 0x05, 0x00, 0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47,
-0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65, 0x00, 0x01, 0x01, 0x01
-};
+0x18,  // Length
+0x10,  // Device Capability descriptor
+0x05,  // Platform Capability descriptor
+0x00,  // Reserved
+0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47,
+0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65,  // WebUSB GUID
+0x00, 0x01,  // Version 1.0
+0x01,  // Vendor request code
+0x01,  // Landing page
 
-const uint8_t WEBUSB_ALLOWED_ORIGINS[7] PROGMEM = {
-0x07, 0x00, 0x07, 0x00, 0x00, 0x01, 0x02
+// Microsoft OS 2.0 Platform Capability Descriptor (MS_VendorCode == 0x02)
+0x1C,  // Length
+0x10,  // Device Capability descriptor
+0x05,  // Platform Capability descriptor
+0x00,  // Reserved
+0xDF, 0x60, 0xDD, 0xD8, 0x89, 0x45, 0xC7, 0x4C,
+0x9C, 0xD2, 0x65, 0x9D, 0x9E, 0x64, 0x8A, 0x9F,  // MS OS 2.0 GUID
+0x00, 0x00, 0x03, 0x06,  // Windows version
+0x2e, 0x00,  // Descriptor set length
+0x02,  // Vendor request code
+0x00   // Alternate enumeration code
 };
 
 // This descriptor is also used as the landing page which is why it is more than
 // just an origin.
 const uint8_t WEBUSB_ORIGIN_1[35] PROGMEM = {
-0x23, 0x03, 0x01, 'w', 'e', 'b', 'u', 's', 'b', '.', 'g', 'i', 't', 'h',
-'u', 'b', '.', 'i', 'o', '/', 'a', 'r', 'd', 'u', 'i', 'n', 'o', '/',
-'d', 'e', 'm', 'o', 's', '/'
+0x23,  // Length
+0x03,  // URL descriptor
+0x01,  // https://
+'w', 'e', 'b', 'u', 's', 'b', '.', 'g', 'i', 't', 'h', 'u', 'b', '.', 'i', 'o',
+'/', 'a', 'r', 'd', 'u', 'i', 'n', 'o', '/', 'd', 'e', 'm', 'o', 's', '/'
 };
 
 const uint8_t WEBUSB_ORIGIN_2[17] PROGMEM = {
-0x11, 0x03, 0x00, 'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', ':', '8', '0',
-'0', '0'
+0x11,  // Length
+0x03,  // URL descriptor
+0x00,  // http://
+'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', ':', '8', '0', '0', '0'
+};
+
+const uint8_t MS_OS_20_DESCRIPTOR_SET[] PROGMEM = {
+0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x06,
 };
 
 typedef struct
@@ -64,7 +89,7 @@ int WebUSB::getInterface(uint8_t* interfaceCount)
 	WebUSBDescriptor webUSBInterface = {
 		D_INTERFACE(pluggedInterface, 2, 0xff, 0, 0),
 		D_ENDPOINT(USB_ENDPOINT_OUT(pluggedEndpoint),USB_ENDPOINT_TYPE_BULK,0x40,0),
-		D_ENDPOINT(USB_ENDPOINT_IN (pluggedEndpoint+1 ),USB_ENDPOINT_TYPE_BULK,0x40,0)
+		D_ENDPOINT(USB_ENDPOINT_IN (pluggedEndpoint+1),USB_ENDPOINT_TYPE_BULK,0x40,0)
 	};
 	return USB_SendControl(0, &webUSBInterface, sizeof(webUSBInterface));
 }
@@ -88,14 +113,21 @@ uint8_t WebUSB::getShortName(char* name)
 
 bool WebUSB::VendorControlRequest(USBSetup& setup)
 {
-	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE) &&
-		  setup.bRequest == 0x01) {
-    if (setup.wIndex == WEBUSB_REQUEST_GET_ALLOWED_ORIGINS)
+	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE)) {
+		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_ALLOWED_ORIGINS)
 		{
-			USB_SendControl(TRANSFER_PGM, &WEBUSB_ALLOWED_ORIGINS, sizeof(WEBUSB_ALLOWED_ORIGINS));
+			uint8_t allowedOrigins[] = {
+				// Allowed Origins Header, bNumConfigurations = 1
+				0x05, 0x00, 0x0e, 0x00, 0x01,
+				// Configuration Subset Header, bNumFunctions = 1
+				0x04, 0x01, 0x01, 0x01,
+				// Function Subset Header, bFirstInterface = pluggedInterface
+				0x05, 0x02, pluggedInterface, 0x01, 0x02
+			};
+			USB_SendControl(0, &allowedOrigins, sizeof(allowedOrigins));
 			return true;
 		}
-		else if (setup.wIndex == WEBUSB_REQUEST_GET_URL)
+		else if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL)
 		{
 			if (setup.wValueL == 1)
 			{
@@ -107,6 +139,38 @@ bool WebUSB::VendorControlRequest(USBSetup& setup)
 				USB_SendControl(TRANSFER_PGM, &WEBUSB_ORIGIN_2, sizeof(WEBUSB_ORIGIN_2));
 				return true;
 			}
+		}
+		else if (setup.bRequest == 0x02 && setup.wIndex == MS_OS_20_REQUEST_DESCRIPTOR)
+		{
+			uint8_t osDescriptor[] = {
+				// Microsoft OS 2.0 descriptor set header (table 10)
+				0x0A, 0x00,  // Descriptor size (10 bytes)
+				0x00, 0x00,  // MS OS 2.0 descriptor set header
+				0x00, 0x00, 0x03, 0x06,  // Windows version (8.1) (0x06030000)
+				0x2e, 0x00,  // Size, MS OS 2.0 descriptor set
+
+				// Microsoft OS 2.0 configuration subset header
+				0x08, 0x00,  // Descriptor size (8 bytes)
+				0x01, 0x00,  // MS OS 2.0 configuration subset header
+				0x00,        // bConfigurationValue
+				0x00,        // Reserved
+				0x24, 0x00,  // Size, MS OS 2.0 configuration subset
+
+				// Microsoft OS 2.0 function subset header
+				0x08, 0x00,  // Descriptor size (8 bytes)
+				0x02, 0x00,  // MS OS 2.0 function subset header
+				pluggedInterface,  // First interface
+				0x00,        // Reserved
+				0x1c, 0x00,  // Size, MS OS 2.0 function subset
+
+				// Microsoft OS 2.0 compatible ID descriptor (table 13)
+				0x14, 0x00,  // wLength
+				0x03, 0x00,  // MS_OS_20_FEATURE_COMPATIBLE_ID
+				'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			};
+			USB_SendControl(0, &osDescriptor, sizeof(osDescriptor));
+			return true;
 		}
 	}
 	return false;

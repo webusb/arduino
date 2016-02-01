@@ -29,6 +29,8 @@
 #define WEBUSB_REQUEST_GET_ALLOWED_ORIGINS		0x01
 #define WEBUSB_REQUEST_GET_URL			0x02
 
+#define MS_OS_20_REQUEST_DESCRIPTOR 0x07
+
 typedef struct 
 {
 	InterfaceDescriptor dif;
