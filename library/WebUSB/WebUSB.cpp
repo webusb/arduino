@@ -35,9 +35,10 @@ const uint8_t WEBUSB_ALLOWED_ORIGINS[7] PROGMEM = {
 
 // This descriptor is also used as the landing page which is why it is more than
 // just an origin.
-const uint8_t WEBUSB_ORIGIN_1[30] PROGMEM = {
-0x1e, 0x03, 0x01, 'w', 'i', 'c', 'g', '.', 'g', 'i', 't', 'h', 'u', 'b', '.',
-'i', 'o', '/', 'w', 'e', 'b', 'u', 's', 'b', '/', 'd', 'e', 'm', 'o', '/'
+const uint8_t WEBUSB_ORIGIN_1[35] PROGMEM = {
+0x23, 0x03, 0x01, 'w', 'e', 'b', 'u', 's', 'b', '.', 'g', 'i', 't', 'h',
+'u', 'b', '.', 'i', 'o', '/', 'a', 'r', 'd', 'u', 'i', 'n', 'o', '/',
+'d', 'e', 'm', 'o', 's', '/'
 };
 
 const uint8_t WEBUSB_ORIGIN_2[17] PROGMEM = {
