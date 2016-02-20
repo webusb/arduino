@@ -7,15 +7,16 @@
 
   let t = new hterm.Terminal();
   t.onTerminalReady = () => {
-  	let io = t.io.push();
+    console.log('Terminal ready.');
+    let io = t.io.push();
 
-  	io.onVTKeystroke = str => {
-  		if (port !== undefined) {
+    io.onVTKeystroke = str => {
+      if (port !== undefined) {
         port.send(str2ab(str)).catch(error => {
           t.io.println('Send error: ' + error);
         });
       }
-  	};
+    };
 
     io.sendString = str => {
       if (port !== undefined) {
@@ -39,25 +40,50 @@
   }
 
   document.addEventListener('DOMContentLoaded', event => {
+    let connectButton = document.querySelector('#connect');
+
     t.decorate(document.querySelector('#terminal'));
+    t.setWidth(80);
+    t.setHeight(24);
     t.installKeyboard();
+
+    function connect() {
+      t.io.println('Connecting to ' + port.device_.productName + '...');
+      port.connect().then(() => {
+        console.log(port);
+        t.io.println('Connected.');
+        connectButton.textContent = 'Disconnect';
+        port.onReceive = data => {
+          t.io.print(ab2str(data.buffer));
+        }
+        port.onReceiveError = error => {
+          t.io.println('Receive error: ' + error);
+        };
+      }, error => {
+        t.io.println('Connection error: ' + error);
+      });
+    };
+
+    connectButton.addEventListener('click', function() {
+      if (port) {
+        port.disconnect();
+        connectButton.textContent = 'Connect';
+      } else {
+        serial.requestPort().then(selectedPort => {
+          port = selectedPort;
+          connect();
+        }).catch(error => {
+          t.io.println('Connection error: ' + error);
+        });
+      }
+    });
 
     serial.getPorts().then(ports => {
       if (ports.length == 0) {
-        t.io.println('No device found.');
+        t.io.println('No devices found.');
       } else {
-        ports[0].connect().then(() => {
-          t.io.println('Connected.');
-          port = ports[0];
-          port.onReceive = data => {
-            t.io.print(ab2str(data.buffer));
-          }
-          port.onReceiveError = error => {
-            t.io.println('Receive error: ' + error);
-          };
-        }, error => {
-          t.io.println('Connection error: ' + error);
-        });
+        port = ports[0];
+        connect();
       }
     });
   });
