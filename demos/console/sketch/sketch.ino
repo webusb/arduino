@@ -1,3 +1,7 @@
+#include <WebUSB.h>
+
+#define Serial WebSerial
+
 const int ledPin = 13;
 
 void setup() {
