@@ -1,10 +1,6 @@
 (function() {
   'use strict';
 
-  function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint8Array(buf));
-  }
-
   document.addEventListener('DOMContentLoaded', event => {
     let connectButton = document.querySelector("#connect");
     let statusDisplay = document.querySelector('#status');
@@ -19,7 +15,8 @@
         connectButton.textContent = 'Disconnect';
 
         port.onReceive = data => {
-          console.log(ab2str(data.buffer));
+          let textDecoder = new TextDecoder();
+          console.log(textDecoder.decode(data));
         }
         port.onReceiveError = error => {
           console.error(error);

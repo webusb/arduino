@@ -5,6 +5,8 @@
 
   var port;
 
+  let textEncoder = new TextEncoder();
+
   let t = new hterm.Terminal();
   t.onTerminalReady = () => {
     console.log('Terminal ready.');
@@ -12,7 +14,7 @@
 
     io.onVTKeystroke = str => {
       if (port !== undefined) {
-        port.send(str2ab(str)).catch(error => {
+        port.send(textEncoder.encode(str)).catch(error => {
           t.io.println('Send error: ' + error);
         });
       }
@@ -20,24 +22,12 @@
 
     io.sendString = str => {
       if (port !== undefined) {
-        port.send(str2ab(str)).catch(error => {
+        port.send(textEncoder.encode(str)).catch(error => {
           t.io.println('Send error: ' + error);
         });
       }
     };
   };
-
-  function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint8Array(buf));
-  }
-
-  function str2ab(str) {
-    let view = new Uint8Array(str.length);
-    for (var i = 0; i < str.length; i++) {
-      view[i] = str.charCodeAt(i);
-    }
-    return view.buffer;
-  }
 
   document.addEventListener('DOMContentLoaded', event => {
     let connectButton = document.querySelector('#connect');
@@ -54,7 +44,8 @@
         t.io.println('Connected.');
         connectButton.textContent = 'Disconnect';
         port.onReceive = data => {
-          t.io.print(ab2str(data.buffer));
+          let textDecoder = new TextDecoder();
+          t.io.print(textDecoder.decode(data));
         }
         port.onReceiveError = error => {
           t.io.println('Receive error: ' + error);
