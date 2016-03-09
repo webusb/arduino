@@ -98,6 +98,6 @@ private:
 	int peek_buffer;
 };
 
-extern WebUSB WebSerial;
+extern WebUSB WebUSBSerial;
 
 #endif // WebUSB_h

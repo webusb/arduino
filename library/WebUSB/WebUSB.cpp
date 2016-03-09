@@ -18,7 +18,7 @@
 
 #include "WebUSB.h"
 
-WebUSB WebSerial;
+WebUSB WebUSBSerial;
 
 const uint8_t BOS_DESCRIPTOR[57] PROGMEM = {
 0x05,  // Length
