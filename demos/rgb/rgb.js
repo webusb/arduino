@@ -38,9 +38,9 @@
       port.send(view);
     };
 
-    redSlider.addEventListener('change', onUpdate);
-    greenSlider.addEventListener('change', onUpdate);
-    blueSlider.addEventListener('change', onUpdate);
+    redSlider.addEventListener('input', onUpdate);
+    greenSlider.addEventListener('input', onUpdate);
+    blueSlider.addEventListener('input', onUpdate);
 
     connectButton.addEventListener('click', function() {
       if (port) {
