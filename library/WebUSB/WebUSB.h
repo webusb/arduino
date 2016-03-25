@@ -31,17 +31,24 @@
 
 #define MS_OS_20_REQUEST_DESCRIPTOR 0x07
 
-typedef struct 
+typedef struct
 {
 	InterfaceDescriptor dif;
 	EndpointDescriptor  in;
 	EndpointDescriptor  out;
 } WebUSBDescriptor;
 
+typedef struct
+{
+  uint8_t scheme;
+  const char* url;
+} WebUSBURL;
+
 class WebUSB : public PluggableUSBModule, public Stream
 {
 public:
-	WebUSB(void);
+	WebUSB(const WebUSBURL* urls, int numUrls, uint8_t landingPage,
+               const uint8_t* allowedOrigins, int numAllowedOrigins);
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
@@ -96,8 +103,11 @@ private:
 	uint8_t protocol;
 	uint8_t idle;
 	int peek_buffer;
+	const WebUSBURL* urls;
+	int numUrls;
+	uint8_t landingPage;
+	const uint8_t* allowedOrigins;
+	int numAllowedOrigins;
 };
-
-extern WebUSB WebUSBSerial;
 
 #endif // WebUSB_h
