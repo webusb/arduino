@@ -19,6 +19,8 @@ Getting Started
 1. Make sure you are running the [latest dev-channel release of Google Chrome](https://www.google.com/chrome/browser/desktop/index.html?extra=devchannel).
 
 2. Make sure the "Experimental Web Platform Features" flag is enabled in chrome://flags. (Sorry, I can't link to it. You need to enter it manually into the omnibox.)
+   the full value:
+      chrome://flags/#enable-experimental-web-platform-features
 
 3. Install at least version 1.6.7 of the [Arduino SDK](https://www.arduino.cc/en/Main/Software).
 
