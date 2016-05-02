@@ -47,6 +47,7 @@
         port.disconnect();
         connectButton.textContent = 'Connect';
         statusDisplay.textContent = '';
+        port = null;
       } else {
         serial.requestPort().then(selectedPort => {
           port = selectedPort;
