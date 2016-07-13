@@ -1,0 +1,3 @@
+name=Arduino AVR Boards (WebUSB version)
+version=1.0.0
+

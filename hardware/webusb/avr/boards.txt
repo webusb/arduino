@@ -1,6 +1,6 @@
 microwebusb.name=Arduino Micro (WebUSB)
 
-microwebusb.upload.tool=avrdude
+microwebusb.upload.tool=arduino:avrdude
 microwebusb.upload.protocol=avr109
 microwebusb.upload.maximum_size=28672
 microwebusb.upload.maximum_data_size=2560
@@ -9,7 +9,7 @@ microwebusb.upload.disable_flushing=true
 microwebusb.upload.use_1200bps_touch=true
 microwebusb.upload.wait_for_upload_port=true
 
-microwebusb.bootloader.tool=avrdude
+microwebusb.bootloader.tool=arduino:avrdude
 microwebusb.bootloader.low_fuses=0xff
 microwebusb.bootloader.high_fuses=0xd8
 microwebusb.bootloader.extended_fuses=0xcb
@@ -29,7 +29,7 @@ microwebusb.build.extra_flags={build.usb_flags} "-DUSB_VERSION=0x210"
 
 leowebusb.name=Arduino Leonardo (WebUSB)
 
-leowebusb.upload.tool=avrdude
+leowebusb.upload.tool=arduino:avrdude
 leowebusb.upload.protocol=avr109
 leowebusb.upload.maximum_size=28672
 leowebusb.upload.maximum_data_size=2560
@@ -38,7 +38,7 @@ leowebusb.upload.disable_flushing=true
 leowebusb.upload.use_1200bps_touch=true
 leowebusb.upload.wait_for_upload_port=true
 
-leowebusb.bootloader.tool=avrdude
+leowebusb.bootloader.tool=arduino:avrdude
 leowebusb.bootloader.low_fuses=0xff
 leowebusb.bootloader.high_fuses=0xd8
 leowebusb.bootloader.extended_fuses=0xcb
