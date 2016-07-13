@@ -1,0 +1,58 @@
+microwebusb.name=Arduino Micro (WebUSB)
+
+microwebusb.upload.tool=arduino:avrdude
+microwebusb.upload.protocol=avr109
+microwebusb.upload.maximum_size=28672
+microwebusb.upload.maximum_data_size=2560
+microwebusb.upload.speed=57600
+microwebusb.upload.disable_flushing=true
+microwebusb.upload.use_1200bps_touch=true
+microwebusb.upload.wait_for_upload_port=true
+
+microwebusb.bootloader.tool=arduino:avrdude
+microwebusb.bootloader.low_fuses=0xff
+microwebusb.bootloader.high_fuses=0xd8
+microwebusb.bootloader.extended_fuses=0xcb
+microwebusb.bootloader.file=caterina/Caterina2-Micro-WebUSB.hex
+microwebusb.bootloader.unlock_bits=0x3F
+microwebusb.bootloader.lock_bits=0x2F
+
+microwebusb.build.mcu=atmega32u4
+microwebusb.build.f_cpu=16000000L
+microwebusb.build.vid=0x2341
+microwebusb.build.pid=0x8037
+microwebusb.build.usb_product="Arduino Micro WebUSB"
+microwebusb.build.board=AVR_MICRO
+microwebusb.build.core=arduino:arduino
+microwebusb.build.variant=arduino:micro
+microwebusb.build.extra_flags={build.usb_flags} "-DUSB_VERSION=0x210"
+
+leowebusb.name=Arduino Leonardo (WebUSB)
+
+leowebusb.upload.tool=arduino:avrdude
+leowebusb.upload.protocol=avr109
+leowebusb.upload.maximum_size=28672
+leowebusb.upload.maximum_data_size=2560
+leowebusb.upload.speed=57600
+leowebusb.upload.disable_flushing=true
+leowebusb.upload.use_1200bps_touch=true
+leowebusb.upload.wait_for_upload_port=true
+
+leowebusb.bootloader.tool=arduino:avrdude
+leowebusb.bootloader.low_fuses=0xff
+leowebusb.bootloader.high_fuses=0xd8
+leowebusb.bootloader.extended_fuses=0xcb
+leowebusb.bootloader.file=caterina/Caterina2-Leonardo-WebUSB.hex
+leowebusb.bootloader.unlock_bits=0x3F
+leowebusb.bootloader.lock_bits=0x2F
+
+leowebusb.build.mcu=atmega32u4
+leowebusb.build.f_cpu=16000000L
+leowebusb.build.vid=0x2341
+leowebusb.build.pid=0x8036
+leowebusb.build.usb_product="Arduino Leonardo WebUSB"
+leowebusb.build.board=AVR_LEONARDO
+leowebusb.build.core=arduino:arduino
+leowebusb.build.variant=arduino:leonardo
+leowebusb.build.extra_flags={build.usb_flags} "-DUSB_VERSION=0x210"
+
