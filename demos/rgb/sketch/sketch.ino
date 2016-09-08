@@ -23,6 +23,7 @@ void setup() {
   }
   Serial.begin(9600);
   Serial.write("Sketch begins.\r\n");
+  Serial.flush();
   index = 0;
 }
 

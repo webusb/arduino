@@ -19,6 +19,7 @@ void setup() {
   }
   Serial.begin(9600);
   Serial.write("Sketch begins.\r\n> ");
+  Serial.flush();
   pinMode(ledPin, OUTPUT);
 }
 
@@ -34,5 +35,6 @@ void loop() {
       digitalWrite(ledPin, LOW);
     }
     Serial.write("\r\n> ");
+    Serial.flush();
   }
 }
