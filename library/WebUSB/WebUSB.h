@@ -47,8 +47,8 @@ typedef struct
 class WebUSB : public PluggableUSBModule, public Stream
 {
 public:
-	WebUSB(const WebUSBURL* urls, int numUrls, uint8_t landingPage,
-               const uint8_t* allowedOrigins, int numAllowedOrigins);
+	WebUSB(const WebUSBURL* urls, uint8_t numUrls, uint8_t landingPage,
+               const uint8_t* allowedOrigins, uint8_t numAllowedOrigins);
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
@@ -104,10 +104,10 @@ private:
 	uint8_t idle;
 	int peek_buffer;
 	const WebUSBURL* urls;
-	int numUrls;
+	uint8_t numUrls;
 	uint8_t landingPage;
 	const uint8_t* allowedOrigins;
-	int numAllowedOrigins;
+	uint8_t numAllowedOrigins;
 };
 
 #endif // WebUSB_h

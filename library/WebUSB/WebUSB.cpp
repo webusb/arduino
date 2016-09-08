@@ -213,8 +213,8 @@ bool WebUSB::setup(USBSetup& setup)
 	return false;
 }
 
-WebUSB::WebUSB(const WebUSBURL* urls, int numUrls, uint8_t landingPage,
-               const uint8_t* allowedOrigins, int numAllowedOrigins)
+WebUSB::WebUSB(const WebUSBURL* urls, uint8_t numUrls, uint8_t landingPage,
+               const uint8_t* allowedOrigins, uint8_t numAllowedOrigins)
 	: PluggableUSBModule(2, 1, epType),
 	  urls(urls), numUrls(numUrls), landingPage(landingPage),
 	  allowedOrigins(allowedOrigins), numAllowedOrigins(numAllowedOrigins)
