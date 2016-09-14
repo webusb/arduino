@@ -32,4 +32,4 @@ Getting Started
 
 7. Load up `demos/rgb/sketch/sketch.ino` and program it to your device.
 
-8. When the sketch is finished uploading you should see a notification from Chrome: "Go to webusb.github.io/arduino/demos/ to connect." Try it out!
+8. When the sketch is finished uploading you should see a notification from Chrome: "Go to [https://webusb.github.io/arduino/demos/](https://webusb.github.io/arduino/demos/) to connect." Try it out!
