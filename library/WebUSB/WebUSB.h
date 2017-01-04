@@ -25,6 +25,10 @@
 #include <avr/wdt.h>
 #include <util/atomic.h>
 
+#ifndef USBCON
+#error "WebUSB requires a board that supports USB client device mode."
+#endif
+
 #define USB_BOS_DESCRIPTOR_TYPE		15
 #define WEBUSB_REQUEST_GET_ALLOWED_ORIGINS		0x01
 #define WEBUSB_REQUEST_GET_URL			0x02
