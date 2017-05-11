@@ -113,6 +113,7 @@ int WebUSB::getDescriptor(USBSetup& setup)
 		if (setup.wValueL == 0 && setup.wIndex == 0) {
 			if (USB_SendControl(TRANSFER_PGM, &BOS_DESCRIPTOR_PREFIX, sizeof(BOS_DESCRIPTOR_PREFIX)) < 0)
 				return -1;
+			uint8_t landingPage = landingPageUrl ? 1 : 0;
 			if (USB_SendControl(0, &landingPage, 1) < 0)
 				return -1;
 			if (USB_SendControl(TRANSFER_PGM, &BOS_DESCRIPTOR_SUFFIX, sizeof(BOS_DESCRIPTOR_SUFFIX)) < 0)
@@ -132,35 +133,20 @@ uint8_t WebUSB::getShortName(char* name)
 bool WebUSB::VendorControlRequest(USBSetup& setup)
 {
 	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE)) {
-		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_ALLOWED_ORIGINS)
+		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL && landingPageUrl)
 		{
-			uint8_t allowedOriginsPrefix[] = {
-				// Allowed Origins Header, bNumConfigurations = 1
-				0x05, 0x00, 0x0c + numAllowedOrigins, 0x00, 0x01,
-				// Configuration Subset Header, bNumFunctions = 1
-				0x04, 0x01, 0x01, 0x01,
-				// Function Subset Header, bFirstInterface = pluggedInterface
-				0x03 + numAllowedOrigins, 0x02, pluggedInterface
-			};
-			if (USB_SendControl(0, &allowedOriginsPrefix, sizeof(allowedOriginsPrefix)) < 0)
+                        if (setup.wValueL != 1)
 				return false;
-			return USB_SendControl(0, allowedOrigins, numAllowedOrigins) >= 0;
-		}
-		else if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL)
-		{
-                        if (setup.wValueL == 0 || setup.wValueL > numUrls)
-				return false;
-			const WebUSBURL& url = urls[setup.wValueL - 1];
-			uint8_t urlLength = strlen(url.url);
+			uint8_t urlLength = strlen(landingPageUrl);
 			uint8_t descriptorLength = urlLength + 3;
 			if (USB_SendControl(0, &descriptorLength, 1) < 0)
 				return false;
 			uint8_t descriptorType = 3;
 			if (USB_SendControl(0, &descriptorType, 1) < 0)
 				return false;
-			if (USB_SendControl(0, &url.scheme, 1) < 0)
+			if (USB_SendControl(0, &landingPageScheme, 1) < 0)
 				return false;
-			return USB_SendControl(0, url.url, urlLength) >= 0;
+			return USB_SendControl(0, landingPageUrl, urlLength) >= 0;
 		}
 		else if (setup.bRequest == 0x02 && setup.wIndex == MS_OS_20_REQUEST_DESCRIPTOR)
 		{
@@ -213,11 +199,9 @@ bool WebUSB::setup(USBSetup& setup)
 	return false;
 }
 
-WebUSB::WebUSB(const WebUSBURL* urls, uint8_t numUrls, uint8_t landingPage,
-               const uint8_t* allowedOrigins, uint8_t numAllowedOrigins)
+WebUSB::WebUSB(uint8_t landingPageScheme, const char* landingPageUrl)
 	: PluggableUSBModule(2, 1, epType),
-	  urls(urls), numUrls(numUrls), landingPage(landingPage),
-	  allowedOrigins(allowedOrigins), numAllowedOrigins(numAllowedOrigins)
+	  landingPageScheme(landingPageScheme), landingPageUrl(landingPageUrl)
 {
 	// one interface, 2 endpoints
 	epType[0] = EP_TYPE_BULK_OUT;
