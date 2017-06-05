@@ -27,7 +27,6 @@
 #define USB_Send					USBDevice.send
 #define USB_SendSpace(ep)			(EPX_SIZE - 1)
 #define USB_Flush					USBDevice.flush
-#define ATOMIC_BLOCK(arg)
 
 #define TRANSFER_PGM 0
 
@@ -328,9 +327,19 @@ WebUSB::operator bool() {
 unsigned long WebUSB::baud() {
 	// Disable interrupts while reading a multi-byte value
 	uint32_t baudrate;
+#ifdef ARDUINO_ARCH_SAMD
+	// nothing needed
+#else
+	// Disable IRQs while reading and clearing breakValue to make
+	// sure we don't overwrite a value just set by the ISR.
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+#endif
 		baudrate =  _usbLineInfo.dwDTERate;
+#ifdef ARDUINO_ARCH_SAMD
+	// nothing needed
+#else
 	}
+#endif
 	return baudrate;
 }
 
@@ -356,11 +365,27 @@ bool WebUSB::rts() {
 
 int32_t WebUSB::readBreak() {
 	int32_t ret;
+#ifdef ARDUINO_ARCH_SAMD
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+
+	// disable interrupts,
+	// to avoid clearing a breakValue that might occur 
+	// while processing the current break value
+	__disable_irq();
+#else
 	// Disable IRQs while reading and clearing breakValue to make
 	// sure we don't overwrite a value just set by the ISR.
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+#endif
 		ret = breakValue;
 		breakValue = -1;
+#ifdef ARDUINO_ARCH_SAMD
+	if (enableInterrupts) {
+		// re-enable the interrupts
+		__enable_irq();
 	}
+#else
+	}
+#endif
 	return ret;
 }
