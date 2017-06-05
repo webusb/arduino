@@ -157,7 +157,7 @@ bool WebUSB::VendorControlRequest(USBSetup& setup)
 	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE)) {
 		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL && landingPageUrl)
 		{
-                        if (setup.wValueL != 1)
+			if (setup.wValueL != 1)
 				return false;
 			uint8_t urlLength = strlen(landingPageUrl);
 			uint8_t descriptorLength = urlLength + 3;
