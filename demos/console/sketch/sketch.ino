@@ -1,13 +1,6 @@
 #include <WebUSB.h>
 
-const WebUSBURL URLS[] = {
-  { 1, "webusb.github.io/arduino/demos/" },
-  { 0, "localhost:8000" },
-};
-
-const uint8_t ALLOWED_ORIGINS[] = { 1, 2 };
-
-WebUSB WebUSBSerial(URLS, 2, 1, ALLOWED_ORIGINS, 2);
+WebUSB WebUSBSerial(1, "webusb.github.io/arduino/demos");
 
 #define Serial WebUSBSerial
 

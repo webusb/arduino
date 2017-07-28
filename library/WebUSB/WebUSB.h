@@ -30,7 +30,6 @@
 #endif
 
 #define USB_BOS_DESCRIPTOR_TYPE		15
-#define WEBUSB_REQUEST_GET_ALLOWED_ORIGINS		0x01
 #define WEBUSB_REQUEST_GET_URL			0x02
 
 #define MS_OS_20_REQUEST_DESCRIPTOR 0x07
@@ -42,17 +41,10 @@ typedef struct
 	EndpointDescriptor  out;
 } WebUSBDescriptor;
 
-typedef struct
-{
-  uint8_t scheme;
-  const char* url;
-} WebUSBURL;
-
 class WebUSB : public PluggableUSBModule, public Stream
 {
 public:
-	WebUSB(const WebUSBURL* urls, uint8_t numUrls, uint8_t landingPage,
-               const uint8_t* allowedOrigins, uint8_t numAllowedOrigins);
+	WebUSB(uint8_t landingPageScheme, const char* landingPageUrl);
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
@@ -107,11 +99,8 @@ private:
 	uint8_t protocol;
 	uint8_t idle;
 	int peek_buffer;
-	const WebUSBURL* urls;
-	uint8_t numUrls;
-	uint8_t landingPage;
-	const uint8_t* allowedOrigins;
-	uint8_t numAllowedOrigins;
+	uint8_t landingPageScheme;
+	const char* landingPageUrl;
 };
 
 #endif // WebUSB_h
