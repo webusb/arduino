@@ -44,6 +44,7 @@ var serial = {};
           }
         })
         .then(() => this.device_.claimInterface(2))
+        .then(() => this.device_.selectAlternateInterface(2, 0))
         .then(() => this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
