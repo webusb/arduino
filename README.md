@@ -15,8 +15,6 @@ WebUSB requires an Arduino model that gives the sketch complete control over the
  * Arduino MKRZero
  * Arduino MKRFox1200
 
-These boards are both based on the ATmega32U4.
-
 Getting Started
 ---------------
 
@@ -37,3 +35,5 @@ Getting Started
 6. Load up `demos/rgb/sketch/sketch.ino` and program it to your device.
 
 7. When the sketch is finished uploading you should see a notification from Chrome: "Go to [https://webusb.github.io/arduino/demos/](https://webusb.github.io/arduino/demos/) to connect." Try it out!
+
+  **Windows:** This notification is currently disabled in Chrome on Windows due to [Chromium issue 656702](https://crbug.com/656702). Implementation of new, more stable USB support for Windows is tracked on Chromium issues [422562](https://crbug.com/422562) and [637404](https://crbug.com/637404).
