@@ -21,9 +21,13 @@
 
 #include <stdint.h>
 #include <Arduino.h>
+#ifdef ARDUINO_ARCH_SAMD
+#include "USB/PluggableUSB.h"
+#else
 #include "PluggableUSB.h"
 #include <avr/wdt.h>
 #include <util/atomic.h>
+#endif
 
 #ifndef USBCON
 #error "WebUSB requires a board that supports USB client device mode."
@@ -94,7 +98,11 @@ protected:
 private:
 	bool VendorControlRequest(USBSetup& setup);
 
+#ifdef ARDUINO_ARCH_SAMD
+	uint32_t epType[2];
+#else
 	uint8_t epType[2];
+#endif
 	uint16_t descriptorSize;
 	uint8_t protocol;
 	uint8_t idle;

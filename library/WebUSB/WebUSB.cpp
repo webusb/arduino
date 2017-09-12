@@ -18,6 +18,28 @@
 
 #include "WebUSB.h"
 
+#ifdef ARDUINO_ARCH_SAMD
+
+#define USB_SendControl				USBDevice.sendControl
+#define USB_RecvControl				USBDevice.recvControl
+#define USB_Available				USBDevice.available
+#define USB_Recv					USBDevice.recv
+#define USB_Send					USBDevice.send
+#define USB_SendSpace(ep)			(EPX_SIZE - 1)
+#define USB_Flush					USBDevice.flush
+
+#define TRANSFER_PGM 0
+
+#define EP_TYPE_BULK_IN_WEBUSB		USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0);
+#define EP_TYPE_BULK_OUT_WEBUSB		USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0);
+
+#else
+
+#define EP_TYPE_BULK_IN_WEBUSB		EP_TYPE_BULK_IN
+#define EP_TYPE_BULK_OUT_WEBUSB		EP_TYPE_BULK_OUT
+
+#endif
+
 const uint8_t BOS_DESCRIPTOR_PREFIX[] PROGMEM = {
 0x05,  // Length
 0x0F,  // Binary Object Store descriptor
@@ -85,11 +107,11 @@ const uint8_t MS_OS_20_DESCRIPTOR_SUFFIX[] PROGMEM = {
 
 typedef struct
 {
-	u32	dwDTERate;
-	u8	bCharFormat;
-	u8 	bParityType;
-	u8 	bDataBits;
-	u8	lineState;
+	uint32_t	dwDTERate;
+	uint8_t	bCharFormat;
+	uint8_t 	bParityType;
+	uint8_t 	bDataBits;
+	uint8_t	lineState;
 } LineInfo;
 
 static volatile LineInfo _usbLineInfo = { 57600, 0x00, 0x00, 0x00, 0x00 };
@@ -135,7 +157,7 @@ bool WebUSB::VendorControlRequest(USBSetup& setup)
 	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE)) {
 		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL && landingPageUrl)
 		{
-                        if (setup.wValueL != 1)
+			if (setup.wValueL != 1)
 				return false;
 			uint8_t urlLength = strlen(landingPageUrl);
 			uint8_t descriptorLength = urlLength + 3;
@@ -204,8 +226,8 @@ WebUSB::WebUSB(uint8_t landingPageScheme, const char* landingPageUrl)
 	  landingPageScheme(landingPageScheme), landingPageUrl(landingPageUrl)
 {
 	// one interface, 2 endpoints
-	epType[0] = EP_TYPE_BULK_OUT;
-	epType[1] = EP_TYPE_BULK_IN;
+	epType[0] = EP_TYPE_BULK_OUT_WEBUSB;
+	epType[1] = EP_TYPE_BULK_IN_WEBUSB;
 	PluggableUSB().plug(this);
 }
 
@@ -305,9 +327,19 @@ WebUSB::operator bool() {
 unsigned long WebUSB::baud() {
 	// Disable interrupts while reading a multi-byte value
 	uint32_t baudrate;
+#ifdef ARDUINO_ARCH_SAMD
+	// nothing needed
+#else
+	// Disable IRQs while reading and clearing breakValue to make
+	// sure we don't overwrite a value just set by the ISR.
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+#endif
 		baudrate =  _usbLineInfo.dwDTERate;
+#ifdef ARDUINO_ARCH_SAMD
+	// nothing needed
+#else
 	}
+#endif
 	return baudrate;
 }
 
@@ -333,11 +365,27 @@ bool WebUSB::rts() {
 
 int32_t WebUSB::readBreak() {
 	int32_t ret;
+#ifdef ARDUINO_ARCH_SAMD
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+
+	// disable interrupts,
+	// to avoid clearing a breakValue that might occur 
+	// while processing the current break value
+	__disable_irq();
+#else
 	// Disable IRQs while reading and clearing breakValue to make
 	// sure we don't overwrite a value just set by the ISR.
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+#endif
 		ret = breakValue;
 		breakValue = -1;
+#ifdef ARDUINO_ARCH_SAMD
+	if (enableInterrupts) {
+		// re-enable the interrupts
+		__enable_irq();
 	}
+#else
+	}
+#endif
 	return ret;
 }
