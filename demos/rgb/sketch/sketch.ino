@@ -8,7 +8,7 @@ const int redPin = 9;
 const int greenPin = 10;
 const int bluePin = 11;
 int color[3];
-int index;
+int colorIndex;
 
 void setup() {
   while (!Serial) {
@@ -17,13 +17,13 @@ void setup() {
   Serial.begin(9600);
   Serial.write("Sketch begins.\r\n");
   Serial.flush();
-  index = 0;
+  colorIndex = 0;
 }
 
 void loop() {
   if (Serial && Serial.available()) {
-    color[index++] = Serial.read();
-    if (index == 3) {
+    color[colorIndex++] = Serial.read();
+    if (colorIndex == 3) {
       analogWrite(redPin, color[0]);
       analogWrite(greenPin, color[1]);
       analogWrite(bluePin, color[2]);
@@ -35,7 +35,7 @@ void loop() {
       Serial.print(color[2]);
       Serial.print(".\r\n");
       Serial.flush();
-      index = 0;
+      colorIndex = 0;
     }
   }
 }
