@@ -48,6 +48,17 @@ typedef struct
 class WebUSB : public PluggableUSBModule, public Stream
 {
 public:
+	/*
+	 * Together |landingPageScheme| and |landingPageUrl| tell the browser
+	 * what page the user should visit in order to interact with their
+	 * device. |landingPageScheme| can have any of the following values:
+	 *
+	 *  0x00 -> "http://"
+	 *  0x01 -> "https://"
+	 *
+	 * This prefix is combined with |landingPageUrl| to produce the full
+	 * URL.
+	 */
 	WebUSB(uint8_t landingPageScheme, const char* landingPageUrl);
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);

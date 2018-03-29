@@ -1,6 +1,6 @@
 #include <WebUSB.h>
 
-WebUSB WebUSBSerial(1, "webusb.github.io/arduino/demos");
+WebUSB WebUSBSerial(1 /* https:// */, "webusb.github.io/arduino/demos");
 
 #define Serial WebUSBSerial
 
