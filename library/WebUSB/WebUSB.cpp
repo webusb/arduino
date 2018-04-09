@@ -173,8 +173,9 @@ int WebUSB::getDescriptor(USBSetup& setup)
 
 uint8_t WebUSB::getShortName(char* name)
 {
-	memcpy(name, "WUART", 5);
-	return 5;
+	uint8_t len = strlen(shortName);
+	memcpy(name, shortName, len);
+	return len;
 }
 
 bool WebUSB::VendorControlRequest(USBSetup& setup)
@@ -252,7 +253,8 @@ bool WebUSB::setup(USBSetup& setup)
 
 WebUSB::WebUSB(uint8_t landingPageScheme, const char* landingPageUrl)
 	: PluggableUSBModule(2, 1, epType),
-	  landingPageScheme(landingPageScheme), landingPageUrl(landingPageUrl)
+	  landingPageScheme(landingPageScheme), landingPageUrl(landingPageUrl),
+	  shortName(WEBUSB_SHORT_NAME)
 {
 	// one interface, 2 endpoints
 	epType[0] = EP_TYPE_BULK_OUT_WEBUSB;
@@ -272,6 +274,11 @@ void WebUSB::begin(unsigned long /* baud_count */, byte /* config */)
 
 void WebUSB::end(void)
 {
+}
+
+void WebUSB::setShortName(const char* name)
+{
+	shortName = name;
 }
 
 int WebUSB::available(void)

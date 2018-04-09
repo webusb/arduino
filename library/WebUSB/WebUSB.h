@@ -38,6 +38,12 @@
 
 #define MS_OS_20_REQUEST_DESCRIPTOR 0x07
 
+#ifndef WEBUSB_SHORT_NAME
+// Max length 20 (ISERIAL_MAX_LEN defined in USBDesc.h)
+#define WEBUSB_SHORT_NAME "WUART"
+#endif
+
+
 typedef struct
 {
 	InterfaceDescriptor dif;
@@ -63,6 +69,14 @@ public:
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
+	/*
+	 * Sets the string reported as the USB device serial number.
+	 * This should be called before |begin()|, typically in |setup()|.
+	 * |name| should be a pointer to static char array containing
+	 * a nul-terminated string containing at most 20 characters
+	 * (not counting the final nul character).
+	 */
+	void setShortName(const char* name);
 
 	virtual int available(void);
 	virtual int peek(void);
@@ -120,6 +134,7 @@ private:
 	int peek_buffer;
 	uint8_t landingPageScheme;
 	const char* landingPageUrl;
+	const char* shortName;
 };
 
 #endif // WebUSB_h
