@@ -69,6 +69,13 @@ public:
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
+	/*
+	 * Sets the string reported as the USB device serial number.
+	 * This should be called before |begin()|, typically in |setup()|.
+	 * |name| should be a pointer to static char array containing
+	 * a nul-terminated string containing at most 20 characters
+	 * (not counting the final nul character).
+	 */
 	void setShortName(const char* name);
 
 	virtual int available(void);
