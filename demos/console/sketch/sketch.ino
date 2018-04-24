@@ -1,6 +1,14 @@
 #include <WebUSB.h>
 
-WebUSB WebUSBSerial(1 /* https:// */, "webusb.github.io/arduino/demos");
+/**
+ * Creating an instance of WebUSBSerial will add an additional USB interface to
+ * the device that is marked as vendor-specific (rather than USB CDC-ACM) and
+ * is therefore accessible to the browser.
+ *
+ * The URL here provides a hint to the browser about what page the user should
+ * navigate to to interact with the device.
+ */
+WebUSB WebUSBSerial(1 /* https:// */, "webusb.github.io/arduino/demos/console");
 
 #define Serial WebUSBSerial
 

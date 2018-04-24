@@ -1,7 +1,22 @@
 WebUSB ❤ ️Arduino
 ================
 
-This repository contains an Arduino library for WebUSB-enabling your sketches. Example sketches and JavaScript code are available in the demos directory.
+This repository contains an Arduino library for WebUSB-enabling your sketches.
+Example sketches and JavaScript code are available in the demos directory.
+
+The WebUSB object is a copy of the Arduino SDK's built-in USB serial library.
+It creates a WebUSB-compatible vendor-specific interface rather than one marked
+as USB CDC-ACM. This prevents operating system drivers from claiming the device
+and making it inaccessible to the browser. This library also implements:
+
+ * The WebUSB landing page descriptor, providing a hint to the browser about
+   what page the user should navigate to to interact with the device. In
+   Google Chrome the presence of this descriptor causes the browser to display
+   a notification when the device is connected. The user can click on this
+   notification to navigate directly to the provided URL.
+ * Microsoft OS 2.0 Descriptors which instruct the Windows operating system
+   (8.1 and above) to automatically the `WinUSB.sys` driver so that the browser
+   can connect to the device.
 
 Compatible Hardware
 -------------------
