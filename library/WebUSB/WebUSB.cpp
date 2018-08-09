@@ -353,24 +353,21 @@ size_t WebUSB::write(const uint8_t *buffer, size_t size)
 // We add a short delay before returning to fix a bug observed by Federico
 // where the port is configured (lineState != 0) but not quite opened.
 WebUSB::operator bool() {
-	static bool result = false;
-	static uint8_t prevLineState = 0;
-	static unsigned long lineStateChangeMillis = 0;
 	if (_usbLineInfo.lineState > 0) {
-		if (!result){
-			if (prevLineState == 0) {
-				lineStateChangeMillis = millis();
-			}else{
-				if (millis()-lineStateChangeMillis>=10){
-					result = true;
+		if (!portOpenResult){
+			if (portOpenPrevLineState == 0) {
+				portOpenLineStateChangeMillis = millis();
+			} else {
+				if (millis()-portOpenLineStateChangeMillis>=10){
+					portOpenResult = true;
 				}
 			}
 		}	
-	}else{
-		result=false;
+	} else {
+		portOpenResult=false;
 	}
-	prevLineState = _usbLineInfo.lineState;
-	return result;
+	portOpenPrevLineState = _usbLineInfo.lineState;
+	return portOpenResult;
 }
 
 unsigned long WebUSB::baud() {

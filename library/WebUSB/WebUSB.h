@@ -135,6 +135,10 @@ private:
 	uint8_t landingPageScheme;
 	const char* landingPageUrl;
 	const char* shortName;
+	
+	bool portOpenResult;
+	uint8_t portOpenPrevLineState;
+	unsigned long portOpenLineStateChangeMillis;
 };
 
 #endif // WebUSB_h
