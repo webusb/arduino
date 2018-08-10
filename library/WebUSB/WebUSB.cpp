@@ -332,7 +332,7 @@ size_t WebUSB::write(const uint8_t *buffer, size_t size)
 	// TODO - ZE - check behavior on different OSes and test what happens if an
 	// open connection isn't broken cleanly (cable is yanked out, host dies
 	// or locks up, or host virtual serial port hangs)
-	if (_usbLineInfo.lineState > 0)	{
+	if (this)	{
 		int r = USB_Send(pluggedEndpoint+1,buffer,size);
 		if (r > 0) {
 			return r;
@@ -353,11 +353,21 @@ size_t WebUSB::write(const uint8_t *buffer, size_t size)
 // We add a short delay before returning to fix a bug observed by Federico
 // where the port is configured (lineState != 0) but not quite opened.
 WebUSB::operator bool() {
-	bool result = false;
-	if (_usbLineInfo.lineState > 0) 
-		result = true;
-	delay(10);
-	return result;
+	if (_usbLineInfo.lineState > 0) {
+		if (!portOpenResult){
+			if (portOpenPrevLineState == 0) {
+				portOpenLineStateChangeMillis = millis();
+			} else {
+				if (millis()-portOpenLineStateChangeMillis>=10){
+					portOpenResult = true;
+				}
+			}
+		}	
+	} else {
+		portOpenResult=false;
+	}
+	portOpenPrevLineState = _usbLineInfo.lineState;
+	return portOpenResult;
 }
 
 unsigned long WebUSB::baud() {
