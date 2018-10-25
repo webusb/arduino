@@ -1,4 +1,7 @@
 var serial = {};
+var interfaceNumber=2;		// original interface number of WebUSB Arduino demo
+var endpointIn=5;			// original in endpoint ID of WebUSB Arduino demo
+var endpointOut=4;			// original out endpoint ID of WebUSB Arduino demo
 
 (function() {
   'use strict';
@@ -29,7 +32,7 @@ var serial = {};
 
   serial.Port.prototype.connect = function() {
     let readLoop = () => {
-      this.device_.transferIn(5, 64).then(result => {
+      this.device_.transferIn(endpointIn, 64).then(result => {
         this.onReceive(result.data);
         readLoop();
       }, error => {
@@ -43,14 +46,40 @@ var serial = {};
             return this.device_.selectConfiguration(1);
           }
         })
-        .then(() => this.device_.claimInterface(2))
-        .then(() => this.device_.selectAlternateInterface(2, 0))
+		.then(()=> {
+			this.device_.configuration.interfaces.forEach(function(element) {
+				var found=false;
+				console.log(element.interfaceNumber);
+				
+				element.alternates.forEach(function(elementalt) {
+					if (elementalt.interfaceClass==0xff) {
+						console.log("Found!");
+						console.log("interfaceClass=%s",elementalt.interfaceClass);
+						found=true;
+						interfaceNumber=element.interfaceNumber;
+						
+						elementalt.endpoints.forEach(function(elementendpoint) {
+							if (elementendpoint.direction=="out") {
+								endpointOut=elementendpoint.endpointNumber;
+								console.log("out endpoint ID=%s", endpointOut);
+							}
+							if (elementendpoint.direction=="in") {
+								endpointIn=elementendpoint.endpointNumber;
+								console.log("in endpoint ID=%s", endpointIn);
+							}
+						})
+					}
+				})
+			})
+		})
+        .then(() => this.device_.claimInterface(interfaceNumber))
+        .then(() => this.device_.selectAlternateInterface(interfaceNumber, 0))
         .then(() => this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
             'request': 0x22,
             'value': 0x01,
-            'index': 0x02}))
+            'index': interfaceNumber}))
         .then(() => {
           readLoop();
         });
@@ -62,11 +91,11 @@ var serial = {};
             'recipient': 'interface',
             'request': 0x22,
             'value': 0x00,
-            'index': 0x02})
+            'index': interfaceNumber})
         .then(() => this.device_.close());
   };
 
   serial.Port.prototype.send = function(data) {
-    return this.device_.transferOut(4, data);
+    return this.device_.transferOut(endpointOut, data);
   };
 })();
