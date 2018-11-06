@@ -1,10 +1,11 @@
 var serial = {};
-var interfaceNumber=2;		// original interface number of WebUSB Arduino demo
-var endpointIn=5;			// original in endpoint ID of WebUSB Arduino demo
-var endpointOut=4;			// original out endpoint ID of WebUSB Arduino demo
 
 (function() {
   'use strict';
+	
+  var interfaceNumber=2;		// original interface number of WebUSB Arduino demo
+  var endpointIn=5;				// original in endpoint ID of WebUSB Arduino demo
+  var endpointOut=4;			// original out endpoint ID of WebUSB Arduino demo
 
   serial.getPorts = function() {
     return navigator.usb.getDevices().then(devices => {
@@ -48,24 +49,15 @@ var endpointOut=4;			// original out endpoint ID of WebUSB Arduino demo
         })
 		.then(()=> {
 			this.device_.configuration.interfaces.forEach(function(element) {
-				var found=false;
-				console.log(element.interfaceNumber);
-				
 				element.alternates.forEach(function(elementalt) {
 					if (elementalt.interfaceClass==0xff) {
-						console.log("Found!");
-						console.log("interfaceClass=%s",elementalt.interfaceClass);
-						found=true;
 						interfaceNumber=element.interfaceNumber;
-						
 						elementalt.endpoints.forEach(function(elementendpoint) {
 							if (elementendpoint.direction=="out") {
 								endpointOut=elementendpoint.endpointNumber;
-								console.log("out endpoint ID=%s", endpointOut);
 							}
 							if (elementendpoint.direction=="in") {
 								endpointIn=elementendpoint.endpointNumber;
-								console.log("in endpoint ID=%s", endpointIn);
 							}
 						})
 					}
