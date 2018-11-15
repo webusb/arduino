@@ -2,12 +2,7 @@ var serial = {};
 
 (function() {
   'use strict';
-	
-	/*
-  var interfaceNumber=2;		// original interface number of WebUSB Arduino demo
-  var endpointIn=5;				// original in endpoint ID of WebUSB Arduino demo
-  var endpointOut=4;			// original out endpoint ID of WebUSB Arduino demo
-	*/
+
   serial.getPorts = function() {
     return navigator.usb.getDevices().then(devices => {
       return devices.map(device => new serial.Port(device));
@@ -30,10 +25,9 @@ var serial = {};
 
   serial.Port = function(device) {
     this.device_ = device;
-	this.interfaceNumber_ =2;		// original interface number of WebUSB Arduino demo
-	this.endpointIn_ =5;			// original in endpoint ID of WebUSB Arduino demo
-	this.endpointOut_ =4;			// original out endpoint ID of WebUSB Arduino demo
-
+    this.interfaceNumber_ = 2;  // original interface number of WebUSB Arduino demo
+    this.endpointIn_ = 5;       // original in endpoint ID of WebUSB Arduino demo
+    this.endpointOut_ = 4;      // original out endpoint ID of WebUSB Arduino demo
   };
 
   serial.Port.prototype.connect = function() {
@@ -52,24 +46,24 @@ var serial = {};
             return this.device_.selectConfiguration(1);
           }
         })
-		.then(()=> {
-			var configurationInterfaces= this.device_.configuration.interfaces;
-			configurationInterfaces.forEach(element => {
-				element.alternates.forEach(elementalt => {
-					if (elementalt.interfaceClass==0xff) {
-						this.interfaceNumber_ = element.interfaceNumber;
-						elementalt.endpoints.forEach(elementendpoint => {
-							if (elementendpoint.direction=="out") {
-								this.endpointOut_ =elementendpoint.endpointNumber;
-							}
-							if (elementendpoint.direction=="in") {
-								this.endpointIn_ =elementendpoint.endpointNumber;
-							}
-						})
-					}
-				})
-			})
-		})
+        .then(() => {
+          var configurationInterfaces = this.device_.configuration.interfaces;
+          configurationInterfaces.forEach(element => {
+            element.alternates.forEach(elementalt => {
+              if (elementalt.interfaceClass==0xff) {
+                this.interfaceNumber_ = element.interfaceNumber;
+                elementalt.endpoints.forEach(elementendpoint => {
+                  if (elementendpoint.direction == "out") {
+                    this.endpointOut_ = elementendpoint.endpointNumber;
+                  }
+                  if (elementendpoint.direction=="in") {
+                    this.endpointIn_ =elementendpoint.endpointNumber;
+                  }
+                })
+              }
+            })
+          })
+        })
         .then(() => this.device_.claimInterface(this.interfaceNumber_))
         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber_, 0))
         .then(() => this.device_.controlTransferOut({
