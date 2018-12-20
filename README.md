@@ -51,3 +51,7 @@ Getting Started
 6. When the sketch is finished uploading you should see a notification from Chrome: "Go to [https://webusb.github.io/arduino/demos/](https://webusb.github.io/arduino/demos/) to connect." Try it out!
 
   **Windows:** This notification is currently disabled in Chrome on Windows due to [Chromium issue 656702](https://crbug.com/656702). Implementation of new, more stable USB support for Windows is tracked on Chromium issues [422562](https://crbug.com/422562) and [637404](https://crbug.com/637404).
+
+  **Android:** This notification is not supported on Android because of OS
+  limitations that prevent the browser from connecting to a device without user
+  interaction.
