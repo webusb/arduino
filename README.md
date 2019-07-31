@@ -26,10 +26,15 @@ WebUSB requires an Arduino model that gives the sketch complete control over the
  * Arduino Leonardo
  * Arduino/Genuino Micro
  * Arduino/Genuino Zero
- * Arduino MKR1000
- * Arduino MKR1010
+ * Arduino/Genuino MKR1000
  * Arduino MKRZero
- * Arduino MKRFox1200
+ * Arduino MKR FOX 1200
+ * Arduino MKR WAN 1300
+ * Arduino MKR GSM 1400
+ * Arduino MKR NB 1500
+ * Arduino MKR WiFi 1010
+ * Arduino MKR Vidor 4000
+ * Arduino NANO 33 IoT
  * Adafruit Feather 32u4
  * Adafruit ItsyBitsy 32u4
 
