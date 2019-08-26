@@ -37,6 +37,7 @@ WebUSB requires an Arduino model that gives the sketch complete control over the
  * Arduino NANO 33 IoT
  * Adafruit Feather 32u4
  * Adafruit ItsyBitsy 32u4
+ * Adafruit Feather M0 Express
 
 Getting Started
 ---------------
@@ -62,3 +63,38 @@ Getting Started
   **Android:** This notification is not supported on Android because of OS
   limitations that prevent the browser from connecting to a device without user
   interaction.
+
+Adding New Boards of Supported Architecture
+-------------------------------------------
+1. Plug in your board.
+2. Run `lsusb` and find your boards _vendor ID_ and _product ID_  
+Example: `Bus 001 Device 119: ID 2341:805a Arduino SA` where 0x2341 is _vendor ID_ and 0x805a is _product ID_.
+3. Add your board's _vendor ID_ and _product ID_ to the `filters` in `serial.js` file -
+```
+const filters = [
+      { 'vendorId': 0x2341, 'productId': 0x8036 }, // Arduino Leonardo
+      { 'vendorId': 0x2341, 'productId': 0x8037 }, // Arduino Micro
+      { 'vendorId': 0x2341, 'productId': 0x804d }, // Arduino/Genuino Zero
+      { 'vendorId': 0x2341, 'productId': 0x804e }, // Arduino/Genuino MKR1000
+      { 'vendorId': 0x2341, 'productId': 0x804f }, // Arduino MKRZERO
+      { 'vendorId': 0x2341, 'productId': 0x8050 }, // Arduino MKR FOX 1200
+      { 'vendorId': 0x2341, 'productId': 0x8052 }, // Arduino MKR GSM 1400
+      { 'vendorId': 0x2341, 'productId': 0x8053 }, // Arduino MKR WAN 1300
+      { 'vendorId': 0x2341, 'productId': 0x8054 }, // Arduino MKR WiFi 1010
+      { 'vendorId': 0x2341, 'productId': 0x8055 }, // Arduino MKR NB 1500
+      { 'vendorId': 0x2341, 'productId': 0x8056 }, // Arduino MKR Vidor 4000
+      { 'vendorId': 0x2341, 'productId': 0x8057 }, // Arduino NANO 33 IoT
+      { 'vendorId': 0x239A, 'productId': 0x000E }, // Adafruit ItsyBitsy 32u4
+      { 'vendorId': 0x239A, 'productId': 0x800D }, // Adafruit ItsyBitsy 32u4
+    ];
+```
+4. Try connecting !
+
+OR
+
+1. Connect your board
+2. Load the sketch onto your board
+3. Open the landing URL
+4. Inspect the page and goto _Sources_
+5. Open `serial.js` in the inspector and add your _vendor ID_ and _product ID_ and don't forget to save - press `Ctrl+S`
+6. Press Connect and hopefully it works!
