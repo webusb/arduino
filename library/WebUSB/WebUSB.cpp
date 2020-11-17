@@ -47,7 +47,7 @@
 
 #endif
 
-const uint8_t BOS_DESCRIPTOR_PREFIX[] PROGMEM = {
+const uint8_t BOS_DESCRIPTOR[] PROGMEM = {
 0x05,  // Length
 0x0F,  // Binary Object Store descriptor
 0x39, 0x00,  // Total length
@@ -62,11 +62,8 @@ const uint8_t BOS_DESCRIPTOR_PREFIX[] PROGMEM = {
 0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65,  // WebUSB GUID
 0x00, 0x01,  // Version 1.0
 0x01,  // Vendor request code
-};
+0x00,  // Landing page (must be set before sending).
 
-// Landing page (1 byte) sent in the middle.
-
-const uint8_t BOS_DESCRIPTOR_SUFFIX[] PROGMEM {
 // Microsoft OS 2.0 Platform Capability Descriptor (MS_VendorCode == 0x02)
 0x1C,  // Length
 0x10,  // Device Capability descriptor
@@ -80,7 +77,7 @@ MS_OS_20_DESCRIPTOR_LENGTH, 0x00,  // Descriptor set length
 0x00   // Alternate enumeration code
 };
 
-const uint8_t MS_OS_20_DESCRIPTOR_PREFIX[] PROGMEM = {
+const uint8_t MS_OS_20_DESCRIPTOR[] PROGMEM = {
 // Microsoft OS 2.0 descriptor set header (table 10)
 0x0A, 0x00,  // Descriptor size (10 bytes)
 MS_OS_20_SET_HEADER_DESCRIPTOR, 0x00,  // MS OS 2.0 descriptor set header
@@ -97,11 +94,7 @@ MS_OS_20_DESCRIPTOR_LENGTH, 0x00,  // Size, MS OS 2.0 descriptor set
 // Microsoft OS 2.0 function subset header
 0x08, 0x00,  // Descriptor size (8 bytes)
  MS_OS_20_SUBSET_HEADER_FUNCTION, 0x00,  // MS OS 2.0 function subset header
-};
-
-// First interface number (1 byte) sent here.
-
-const uint8_t MS_OS_20_DESCRIPTOR_SUFFIX[] PROGMEM = {
+0x00,        // First interface number (must be set before sending).
 0x00,        // Reserved
 0xA0, 0x00,  // Size, MS OS 2.0 function subset
 
@@ -110,10 +103,8 @@ const uint8_t MS_OS_20_DESCRIPTOR_SUFFIX[] PROGMEM = {
 MS_OS_20_FEATURE_COMPATIBLE_ID, 0x00,  // MS_OS_20_FEATURE_COMPATIBLE_ID
 'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
 
-
-const uint8_t MS_OS_20_CUSTOM_PROPERTY[] PROGMEM = {
+// Microsoft OS 2.0 custom property descriptor
 0x84, 0x00,   //wLength: 
 MS_OS_20_FEATURE_REG_PROPERTY, 0x00,   // wDescriptorType: MS_OS_20_FEATURE_REG_PROPERTY: 0x04 (Table 9)
 0x07, 0x00,   //wPropertyDataType: REG_MULTI_SZ (Table 15)
@@ -158,14 +149,10 @@ int WebUSB::getDescriptor(USBSetup& setup)
 	if (USB_BOS_DESCRIPTOR_TYPE == setup.wValueH)
 	{
 		if (setup.wValueL == 0 && setup.wIndex == 0) {
-			if (USB_SendControl(TRANSFER_PGM, &BOS_DESCRIPTOR_PREFIX, sizeof(BOS_DESCRIPTOR_PREFIX)) < 0)
-				return -1;
-			uint8_t landingPage = landingPageUrl ? 1 : 0;
-			if (USB_SendControl(0, &landingPage, 1) < 0)
-				return -1;
-			if (USB_SendControl(TRANSFER_PGM, &BOS_DESCRIPTOR_SUFFIX, sizeof(BOS_DESCRIPTOR_SUFFIX)) < 0)
-				return -1;
-			return sizeof(BOS_DESCRIPTOR_PREFIX) + 1 + sizeof(BOS_DESCRIPTOR_SUFFIX);
+			uint8_t buffer[sizeof(BOS_DESCRIPTOR)];
+			memcpy_P(&buffer, &BOS_DESCRIPTOR, sizeof(BOS_DESCRIPTOR));
+			buffer[28] = landingPageDescriptor ? 1 : 0;
+			return USB_SendControl(0, buffer, min(sizeof(buffer), setup.wLength));
 		}
 	}
 	return 0;
@@ -181,32 +168,17 @@ uint8_t WebUSB::getShortName(char* name)
 bool WebUSB::VendorControlRequest(USBSetup& setup)
 {
 	if (setup.bmRequestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_DEVICE)) {
-		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL && landingPageUrl)
+		if (setup.bRequest == 0x01 && setup.wIndex == WEBUSB_REQUEST_GET_URL &&
+			setup.wValueL == 1 && landingPageDescriptor)
 		{
-			if (setup.wValueL != 1)
-				return false;
-			uint8_t urlLength = strlen(landingPageUrl);
-			uint8_t descriptorLength = urlLength + 3;
-			if (USB_SendControl(0, &descriptorLength, 1) < 0)
-				return false;
-			uint8_t descriptorType = 3;
-			if (USB_SendControl(0, &descriptorType, 1) < 0)
-				return false;
-			if (USB_SendControl(0, &landingPageScheme, 1) < 0)
-				return false;
-			return USB_SendControl(0, landingPageUrl, urlLength) >= 0;
+			return USB_SendControl(0, landingPageDescriptor, min(landingPageDescriptor[0], setup.wLength)) >= 0;
 		}
 		else if (setup.bRequest == 0x02 && setup.wIndex == MS_OS_20_REQUEST_DESCRIPTOR)
 		{
-			if (USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_PREFIX, sizeof(MS_OS_20_DESCRIPTOR_PREFIX)) < 0)
-				return false;
-			if (USB_SendControl(0, &pluggedInterface, 1) < 0)
-				return false;
-			if (USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_SUFFIX, sizeof(MS_OS_20_DESCRIPTOR_SUFFIX)) < 0)
-			        return false;
-			if (USB_SendControl(TRANSFER_PGM, &MS_OS_20_CUSTOM_PROPERTY, sizeof(MS_OS_20_CUSTOM_PROPERTY)) < 0)
-			        return false;
-			return true;
+			uint8_t buffer[sizeof(MS_OS_20_DESCRIPTOR)];
+			memcpy_P(&buffer, &MS_OS_20_DESCRIPTOR, sizeof(MS_OS_20_DESCRIPTOR));
+			buffer[22] = pluggedInterface;
+			return USB_SendControl(0, buffer, min(sizeof(buffer), setup.wLength)) >= 0;
 		}
 	}
 	return false;
@@ -243,6 +215,9 @@ bool WebUSB::setup(USBSetup& setup)
 			{
 				_usbLineInfo.lineState = setup.wValueL;
 			}
+#ifdef ARDUINO_ARCH_SAMD
+			USBDevice.sendZlp(0);
+#endif
 			return true;
 		}
 	} else if (REQUEST_VENDOR == (requestType & REQUEST_TYPE)) {
@@ -253,13 +228,30 @@ bool WebUSB::setup(USBSetup& setup)
 
 WebUSB::WebUSB(uint8_t landingPageScheme, const char* landingPageUrl)
 	: PluggableUSBModule(2, 1, epType),
-	  landingPageScheme(landingPageScheme), landingPageUrl(landingPageUrl),
 	  shortName(WEBUSB_SHORT_NAME)
 {
 	// one interface, 2 endpoints
 	epType[0] = EP_TYPE_BULK_OUT_WEBUSB;
 	epType[1] = EP_TYPE_BULK_IN_WEBUSB;
+
+	if (landingPageUrl) {
+		// Set up the landing page descriptor ahead of time to avoid
+		// allocations later.
+		uint8_t descriptorLength = 3 + strlen(landingPageUrl);
+		landingPageDescriptor = new uint8_t[descriptorLength];
+		landingPageDescriptor[0] = /*bLength=*/descriptorLength;
+		landingPageDescriptor[1] = /*bDescriptorType=*/3;
+		landingPageDescriptor[2] = /*bScheme=*/landingPageScheme;
+		strcpy((char*)&landingPageDescriptor[3], landingPageUrl);
+	}
+
 	PluggableUSB().plug(this);
+}
+
+WebUSB::~WebUSB() {
+	if (landingPageDescriptor) {
+		delete landingPageDescriptor;
+	}
 }
 
 void WebUSB::begin(unsigned long /* baud_count */)

@@ -10,6 +10,7 @@
  */
 WebUSB WebUSBSerial(1 /* https:// */, "webusb.github.io/arduino/demos/rgb");
 
+#undef Serial
 #define Serial WebUSBSerial
 
 const int redPin = 9;
