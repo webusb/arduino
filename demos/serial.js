@@ -73,6 +73,12 @@ var serial = {};
         })
         .then(() => this.device_.claimInterface(this.interfaceNumber_))
         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber_, 0))
+        // The vendor-specific interface provided by a device using this
+        // Arduino library is a copy of the normal Arduino USB CDC-ACM
+        // interface implementation and so reuses some requests defined by
+        // that specification. This request sets the DTR (data terminal
+        // ready) signal high to indicate to the device that the host is
+        // ready to send and receive data.
         .then(() => this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
@@ -85,6 +91,8 @@ var serial = {};
   };
 
   serial.Port.prototype.disconnect = function() {
+    // This request sets the DTR (data terminal ready) signal low to
+    // indicate to the device that the host has disconnected.
     return this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
