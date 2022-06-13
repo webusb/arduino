@@ -22,7 +22,11 @@
 #include <stdint.h>
 #include <Arduino.h>
 #ifdef ARDUINO_ARCH_SAMD
+#ifdef ARDUINO_API_VERSION
+#include "api/PluggableUSB.h"
+#else
 #include "USB/PluggableUSB.h"
+#endif
 #else
 #include "PluggableUSB.h"
 #include <avr/wdt.h>
@@ -124,7 +128,11 @@ private:
 	bool VendorControlRequest(USBSetup& setup);
 
 #ifdef ARDUINO_ARCH_SAMD
+#ifdef ARDUINO_API_VERSION
+	unsigned int epType[2];
+#else
 	uint32_t epType[2];
+#endif
 #else
 	uint8_t epType[2];
 #endif
