@@ -70,6 +70,9 @@ var serial = {};
               }
             })
           })
+          console.log(`Interface: ${this.interfaceNumber_}`);
+          console.log(`IN endpoint: ${this.endpointIn_}`);
+          console.log(`OUT endpoint: ${this.endpointOut_}`);
         })
         .then(() => this.device_.claimInterface(this.interfaceNumber_))
         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber_, 0))
@@ -86,6 +89,7 @@ var serial = {};
             'value': 0x01,
             'index': this.interfaceNumber_}))
         .then(() => {
+          console.log('Starting read loop.');
           readLoop();
         });
   };

@@ -10,6 +10,7 @@
  */
 WebUSB WebUSBSerial(1 /* https:// */, "webusb.github.io/arduino/demos/console");
 
+#undef Serial
 #define Serial WebUSBSerial
 
 const int ledPin = 13;

@@ -70,6 +70,7 @@ public:
 	 * URL.
 	 */
 	WebUSB(uint8_t landingPageScheme, const char* landingPageUrl);
+	~WebUSB();
 	void begin(unsigned long);
 	void begin(unsigned long, uint8_t);
 	void end(void);
@@ -140,8 +141,7 @@ private:
 	uint8_t protocol;
 	uint8_t idle;
 	int peek_buffer;
-	uint8_t landingPageScheme;
-	const char* landingPageUrl;
+	uint8_t *landingPageDescriptor;
 	const char* shortName;
 	
 	bool portOpenResult;
